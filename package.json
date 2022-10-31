@@ -1,0 +1,29 @@
+{
+  "name": "pbz_2lab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jek701/pbz_2lab.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jek701/pbz_2lab/issues"
+  },
+  "homepage": "https://github.com/jek701/pbz_2lab#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.8",
+    "prisma": "^4.5.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  },
+  "dependencies": {
+    "@prisma/client": "^4.5.0"
+  }
+}
