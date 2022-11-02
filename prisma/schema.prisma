@@ -14,12 +14,12 @@ model Customer {
   id String @default(cuid()) @id
   name String
   second_name String
-  plan Plan @relation(fields: [planId], references: [id])
-  planId String
+  plan Plan @relation(references: [id], fields: [plan_id])
+  plan_id String
   debts Int
   address String
-  region Region @relation(fields: [regionId], references: [id])
-  regionId String
+  region Region @relation(references: [id], fields: [region_id])
+  region_id String
 }
 
 model Region {
