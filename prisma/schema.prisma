@@ -16,6 +16,16 @@ model Customer {
   second_name String
   plan Plan? @relation(fields: [planName], references: [name])
   planName String?
+  Debts Int
+  Address String
+  Region Region? @relation(fields: [regionName], references: [name])
+  regionName String?
+}
+
+model Region {
+  id String @default(cuid()) @id
+  name String
+  Price Int
 }
 
 model Plan {
