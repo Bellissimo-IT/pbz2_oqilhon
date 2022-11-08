@@ -9,20 +9,11 @@ interface BlogProps {
     users: User[]
 }
 
-const Blog: React.FC<BlogProps> = ({users}) => {
-
+const Blog: React.FC<BlogProps> = ({plans}) => {
+    console.log(plans)
     return (
         <div>
-            {users.map(i => (
-                <div>
-                    <p>
-                        User: {i.name}
-                    </p>
-                    <p>
-                        Plan: {i.planName}
-                    </p>
-                </div>
-            ))}
+            Apple
         </div>
     )
 }
@@ -30,8 +21,8 @@ const Blog: React.FC<BlogProps> = ({users}) => {
 export default Blog
 
 export const getStaticProps: GetStaticProps = async () => {
-    const plans = await prisma.plan.findMany();
-    const users = await prisma.customer.findMany()
+    const plans = await prisma.plan.findMany({})
+    const users = await prisma.customer.findMany({})
     return {
         props: {
             plans,

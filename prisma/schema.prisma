@@ -20,6 +20,7 @@ model Customer {
   address String
   region Region @relation(references: [id], fields: [region_id])
   region_id String
+  created_at DateTime
 }
 
 model Region {
@@ -27,6 +28,7 @@ model Region {
   name String
   price_for_region Int
   customer Customer[]
+  created_at DateTime
 }
 
 model Plan {
@@ -34,4 +36,5 @@ model Plan {
   name String @unique
   default_price Int
   users Customer[]
+  created_at DateTime
 }
