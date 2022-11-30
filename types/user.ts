@@ -6,5 +6,5 @@ export default interface User {
     plan_id: string
     debts?: number
     address?: string
-    created_at: Date
+    created_at: string
 }
