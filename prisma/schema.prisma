@@ -10,31 +10,23 @@ datasource db {
   url      = "file:./deb.db"
 }
 
-model Customer {
-  id String @default(cuid()) @id
-  name String
-  second_name String
-  plan Plan @relation(references: [id], fields: [plan_id])
-  plan_id String
-  debts Int
-  address String
-  region Region @relation(references: [id], fields: [region_id])
-  region_id String
-  created_at DateTime @default(now())
+model Executor {
+    id        String      @id @default(uuid())
+    name_of_department      String
+    name_of_executor      String
+    position      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    documents Document[]
 }
 
-model Region {
-  id String @default(cuid()) @id
-  name String
-  price_for_region Int
-  customer Customer[]
-  created_at DateTime @default(now())
-}
-
-model Plan {
-  id String @default(cuid()) @id
-  name String @unique
-  default_price Int
-  users Customer[]
-  created_at DateTime @default(now())
+model Document {
+  id                    String      @id @default(uuid())
+  name                  String
+  description           String
+  createdAt             DateTime @default(now())
+  must_be_finished_at    DateTime
+  finished_at            DateTime?
+  executor              Executor @relation(fields: [executor_id], references: [id])
+  executor_id           String
 }

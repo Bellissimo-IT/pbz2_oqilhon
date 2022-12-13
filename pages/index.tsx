@@ -1,180 +1,158 @@
-import React, {useState} from "react"
+import React from "react"
 import {GetStaticProps} from "next"
-import prisma from '../lib/prisma';
-import Plan from "../types/plan";
-import User from "../types/user";
-import {City} from "../types/City";
-import {Radio, Table, Tabs} from "antd";
+import prisma from "../lib/prisma"
+import {Document, Executor} from "../types/Document"
+import {Checkbox, DatePicker, Table, Tabs, Tag} from "antd"
 import styles from "./styles.module.css"
-import moment from "moment";
+import moment, {Moment} from "moment"
+import {ColumnsType} from "antd/es/table"
 
 interface BlogProps {
-    users: User[]
-    cities: City[]
-    plans: Plan[]
+    docs: Document[]
+    executors: Executor[]
 }
 
-const Blog: React.FC<BlogProps> = ({users, cities, plans}) => {
-    const [selectedCity, setSelectedCity] = useState<string>(cities[0].id)
-    const [selectedMonth, setSelectedMonth] = useState<string>(moment(users[0].created_at).format("MM"))
+const Blog: React.FC<BlogProps> = ({docs, executors}) => {
+    const {RangePicker} = DatePicker
+    const [date, setDate] = React.useState<[Moment, Moment]>([undefined, undefined])
+    const [onlyFinished, setOnlyFinished] = React.useState<boolean>(false)
 
-    const columns = [
+    const columns: ColumnsType<Document> = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "ID",
+            dataIndex: "id",
+            key: "id"
         },
         {
-            title: 'Second Name',
-            dataIndex: 'second_name',
-            key: 'secondName',
+            title: "Название",
+            dataIndex: "name",
+            key: "name"
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: "Содержание",
+            dataIndex: "description",
+            key: "description"
         },
         {
-            title: 'Plan',
-            dataIndex: 'plan_id',
-            key: 'plan',
+            title: "Дата создания",
+            dataIndex: "createdAt",
+            key: "createdAt",
+            render: (text: string) => moment(text).format("DD.MM.YYYY, HH:mm")
         },
         {
-            title: 'Date of creation',
-            dataIndex: 'created_at',
-            key: 'date',
-        },
-    ];
-
-    const debtsColumn = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "Должен быть выполнен",
+            dataIndex: "must_be_finished_at",
+            key: "must_be_finished_at",
+            render: (text: string) => moment(text).format("DD.MM.YYYY, HH:mm")
         },
         {
-            title: 'Second Name',
-            dataIndex: 'second_name',
-            key: 'secondName',
+            title: "Выполнен",
+            dataIndex: "finished_at",
+            key: "finished_at",
+            render: (text: string) => {
+                console.log()
+                return text ? <Tag color={"green"}>{moment(text).format("DD.MM.YYYY, HH:MM")}</Tag> :
+                    <Tag color={"red"}>Не выполнен</Tag>
+            },
+            filters: [
+                {
+                    text: "Выполнен",
+                    value: "finished"
+                },
+                {
+                    text: "Не выполнен",
+                    value: "not_finished"
+                }
+            ],
+            // @ts-ignore
+            onFilter: (value: string, record) => {
+                return value === "finished" ? record.finished_at : !record.finished_at
+            }
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
-            key: 'address',
+            title: "Имя исполнителя",
+            dataIndex: "executor_id",
+            key: "executor_id",
+            render: (text: string) => {
+                const executor = executors.find(executor => executor.id === text)
+                return executor?.name_of_executor
+            }
         },
         {
-            title: 'Plan',
-            dataIndex: 'plan_id',
-            key: 'plan',
-        },
-        {
-            title: 'Debts',
-            dataIndex: 'debts',
-            key: 'debts',
+            title: "Наименование организации",
+            dataIndex: "executor_id",
+            key: "executor_id",
+            render: (text: string) => {
+                const executor = executors.find(executor => executor.id === text)
+                return executor?.name_of_department
+            }
         }
     ]
 
-    const planColumn = [
+    const executorCol: ColumnsType<Executor> = [
         {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
+            title: "ID",
+            dataIndex: "id",
+            key: "id"
         },
         {
-            title: 'Price',
-            dataIndex: "default_price",
-            key: 'price',
+            title: "Имя исполнителя",
+            dataIndex: "name_of_executor",
+            key: "name_of_executor"
         },
         {
-            title: 'Created at',
-            dataIndex: 'created_at',
-            key: 'date',
+            title: "Имя подразделения",
+            dataIndex: "name_of_department",
+            key: "name_of_department"
+        },
+        {
+            title: "Должность",
+            dataIndex: "position",
+            key: "position"
+        },
+        {
+            title: "Документы",
+            dataIndex: "id",
+            key: "id",
+            render: (id: string) => {
+                const documents = docs.filter(doc => doc.executor_id === id)
+                return documents.map(doc => <Tag style={{marginBottom: "5px"}} color={"blue"}>{doc.name}</Tag>)
+            }
+        },
+        {
+            title: "Должен быть выполнен",
+            dataIndex: "id",
+            key: "id",
+            render: (id: string) => {
+                const documents = docs.filter(doc => doc.executor_id === id && onlyFinished ? doc.finished_at : true)
+                return documents.map(doc => <Tag
+                    style={{marginBottom: "5px"}}
+                    color={doc.finished_at ? "green" : "red"}>{moment(doc.must_be_finished_at).format("DD.MM.YYYY, HH:MM")}</Tag>)
+            }
         }
     ]
+
+    console.log(docs, "docs")
+    console.log(executors, "executors")
 
     return (
         <div className={styles.mainWrapper}>
             <Tabs>
-                <Tabs.TabPane tab="Расчет количества абонентов с фильтром" key="item-1">
-                    <Radio.Group style={{marginBottom: "25px"}}
-                                 onChange={(event) => setSelectedCity(event.target.value)} value={selectedCity}>
-                        {cities.map((city) => (<Radio.Button value={city.id}>{city.name}</Radio.Button>))}
-                    </Radio.Group>
-                    <Radio.Group style={{marginBottom: "25px"}}>
-                        <Radio.Button onChange={() => setSelectedMonth(undefined)}>
-                            All months
-                        </Radio.Button>
-                        {
-                            moment.months().map((month, index) => {
-                                return {
-                                    month,
-                                    index
-                                }
-                            }).map((month) => (<Radio.Button onChange={(e) => setSelectedMonth(e.target.value)}
-                                                             value={month.index}>{month.month}</Radio.Button>))
+                <Tabs.TabPane tab="Документы | Мероприятия" key="item-1">
+                    <RangePicker onChange={(val) => setDate(val)}/>
+                    <br/> <br/>
+                    <Table columns={columns} dataSource={docs.filter((i) => {
+                        if (date[0] && date[1]) {
+                            return moment(i.created_at).isBetween(date[0], date[1])
+                        } else {
+                            return i
                         }
-                    </Radio.Group>
-                    <div className={styles.dataWrapper}>
-                        <Table dataSource={users.filter(
-                            user => user.region_id === selectedCity && selectedMonth ? moment(user.created_at).format("MM") == selectedMonth + 1 : user.region_id === selectedCity).map(
-                            user => {
-                                return {
-                                    ...user,
-                                    created_at: moment(user.created_at).format('DD.MM.YYYY, HH:mm'),
-                                    plan_id: plans.find(plan => plan.id === user.plan_id)?.name
-                                }
-                            }
-                        )
-                        } columns={columns}/>
-                    </div>
+                    })}/>
                 </Tabs.TabPane>
-                <Tabs.TabPane tab="Просмотр списка абонентов, имеющих задолженности по оплате" key="item-2">
-                    <div className={styles.dataWrapper}>
-                        <Table dataSource={users.filter(
-                            user => user.debts > 0).map(
-                            user => {
-                                return {
-                                    ...user,
-                                    created_at: moment(user.created_at).format('DD.MM.YYYY, HH:mm'),
-                                    plan_id: plans.find(plan => plan.id === user.plan_id)?.name,
-                                    debts: user.debts + " BYN"
-                                }
-                            }
-                        )
-                        } columns={debtsColumn}/>
-                    </div>
-                </Tabs.TabPane>
-                <Tabs.TabPane tab="Стоимость оплаты одной минуты разговора" key="item-3">
-                    <Radio.Group style={{marginBottom: "25px"}}>
-                        <Radio.Button onChange={() => setSelectedMonth(undefined)} value="show_all">Show all</Radio.Button>
-                        {
-                            moment.months().map((month, index) => {
-                                return {
-                                    month,
-                                    index
-                                }
-                            }).map((month) => (
-                                <Radio.Button
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
-                                    value={month.index}>{month.month}</Radio.Button>
-                            ))
-                        }
-                    </Radio.Group>
-                    <div className={styles.dataWrapper}>
-                        <Table
-                            dataSource={
-                                plans.filter(
-                                    plan => selectedMonth ? moment(plan.created_at).format("MM") == selectedMonth + 1 : plan).map(
-                                    plan => {
-                                        return {
-                                            ...plan,
-                                            default_price: (plan.default_price).toFixed(2) + " BYN",
-                                            created_at: moment(plan.created_at).format('DD.MM.YYYY, HH:mm')
-                                        }
-                                    }
-                                )
-                            } columns={planColumn}/>
-                    </div>
+                <Tabs.TabPane tab="Исполнители" key="item-2">
+                    <Checkbox onChange={(e) => setOnlyFinished(e.target.checked)}>Только выполненные</Checkbox>
+                    <br/><br/>
+                    <Table columns={executorCol} dataSource={executors}/>
                 </Tabs.TabPane>
             </Tabs>
         </div>
@@ -184,15 +162,13 @@ const Blog: React.FC<BlogProps> = ({users, cities, plans}) => {
 export default Blog
 
 export const getStaticProps: GetStaticProps = async () => {
-    const users = await prisma.customer.findMany({})
-    const cities = await prisma.region.findMany({})
-    const plans = await prisma.plan.findMany({})
+    const docs = await prisma.document.findMany({})
+    const executors = await prisma.executor.findMany({})
     return {
         props: {
-            users: JSON.parse(JSON.stringify(users)),
-            cities: JSON.parse(JSON.stringify(cities)),
-            plans: JSON.parse(JSON.stringify(plans))
+            executors: JSON.parse(JSON.stringify(executors)),
+            docs: JSON.parse(JSON.stringify(docs))
         },
-        revalidate: 10,
-    };
+        revalidate: 10
+    }
 }
