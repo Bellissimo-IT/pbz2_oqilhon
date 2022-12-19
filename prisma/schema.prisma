@@ -10,14 +10,26 @@ datasource db {
   url      = "file:./deb.db"
 }
 
-model Executor {
+model Corresponds {
     id        String      @id @default(uuid())
     name_of_department      String
-    name_of_executor      String
     position      String
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     documents Document[]
+    executor Executor @relation(fields: [executorId], references: [id])
+    executorId String
+}
+
+model Executor {
+    id        String      @id @default(uuid())
+    name     String
+    position      String
+    phone      String
+    email      String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    correspond Corresponds[]
 }
 
 model Document {
@@ -27,6 +39,6 @@ model Document {
   createdAt             DateTime @default(now())
   must_be_finished_at    DateTime
   finished_at            DateTime?
-  executor              Executor @relation(fields: [executor_id], references: [id])
-  executor_id           String
+  correspond            Corresponds @relation(fields: [correspond_id], references: [id])
+  correspond_id           String
 }

@@ -5,13 +5,25 @@ export interface Document {
     created_at: Date;
     must_be_finished_at: Date;
     finished_at: Date;
-    executor_id: string;
+    correspond_id: string;
 }
 
 export interface Executor {
     id: string;
-    name_of_department: string;
-    name_of_executor: string;
+    name: string;
     position: string;
+    phone: string;
+    email: string;
+    created_at: Date;
+    updated_at: Date;
     document_id: string;
+}
+
+export interface Corresponds {
+    id: string;
+    name_of_department: string;
+    position: string;
+    created_at: Date;
+    updated_at: Date;
+    executorId: string;
 }
